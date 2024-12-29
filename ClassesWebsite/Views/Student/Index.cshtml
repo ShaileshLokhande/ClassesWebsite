@@ -1,0 +1,132 @@
+﻿@model StudentIndexViewModel
+
+<!-- Student Registration Form -->
+<h2>Register Student</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-row">
+        <!-- Name Field (First Line) -->
+        <div class="form-group col-md-4">
+            <label for="Name">Name</label>
+            <input type="text" id="Name" name="Name" class="form-control" required />
+        </div>
+
+        <!-- Class Field (First Line) -->
+        <div class="form-group col-md-4">
+            <label for="Class">Class</label>
+            <input type="text" id="Class" name="Class" class="form-control" required />
+        </div>
+
+        <!-- Technology Field (First Line) -->
+        <div class="form-group col-md-4">
+            <label for="Technology">Technology</label>
+            <input type="text" id="Technology" name="Technology" class="form-control" required />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <!-- Date of Birth (Second Line) -->
+        <div class="form-group col-md-6">
+            <label for="DOB">Date of Birth</label>
+            <input type="date" id="DOB" name="DOB" class="form-control" required />
+        </div>
+
+        <!-- Description Field (Second Line) -->
+        <div class="form-group col-md-6">
+            <label for="Description">Description</label>
+            <textarea id="Description" name="Description" class="form-control" required></textarea>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="reset" class="btn btn-secondary">Reset</button>
+</form>
+
+<br />
+
+<h2>Student List</h2>
+
+<!-- Search Box -->
+<form method="get" asp-action="Index">
+    <input type="text" name="searchString" value="@Model.SearchString" placeholder="Search by name" />
+    <button type="submit">Search</button>
+</form>
+
+<!-- Table displaying students -->
+<table class="table" id="studentGrid">
+    <thead>
+        <tr>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@((Model.SortOrder == "name_asc") ? "name_desc" : "name_asc")">
+                    Name
+                    @if (Model.SortOrder == "name_asc")
+                    {
+                        <span>&#x2191;</span> <!-- Ascending -->
+                    }
+                    else
+                    {
+                        <span>&#x2193;</span> <!-- Descending -->
+                    }
+                </a>
+            </th>
+            <th>Date of Birth</th>
+            <th>Class</th>
+            <th>Technology</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var student in Model.Students)
+        {
+            <tr>
+                <td>@student.Name</td>
+                <td>@student.DOB.ToShortDateString()</td>
+                <td>@student.Class</td>
+                <td>@student.Technology</td>
+                <td>@student.Description</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@student.Id" class="btn btn-warning">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@student.Id" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Pagination -->
+<div class="pagination">
+    @if (Model.CurrentPage > 1)
+    {
+        <a asp-action="Index" asp-route-page="1" class="btn btn-secondary">First</a>
+        <a asp-action="Index" asp-route-page="@(Model.CurrentPage - 1)" class="btn btn-secondary">Previous</a>
+    }
+
+    @for (var i = 1; i <= Model.TotalPages; i++)
+    {
+        <a asp-action="Index" asp-route-page="@i" class="btn @(i == Model.CurrentPage ? "btn-primary" : "btn-secondary")">
+            @i
+        </a>
+    }
+
+    @if (Model.CurrentPage < Model.TotalPages)
+    {
+        <a asp-action="Index" asp-route-page="@(Model.CurrentPage + 1)" class="btn btn-secondary">Next</a>
+        <a asp-action="Index" asp-route-page="@Model.TotalPages" class="btn btn-secondary">Last</a>
+    }
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        // Prevent page from scrolling to top when clicking pagination
+        document.querySelectorAll('.pagination a').forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                // Use setTimeout to wait for page load and then scroll to the table
+                setTimeout(function () {
+                    // Scroll to the table/grid after clicking pagination
+                    document.getElementById('studentGrid').scrollIntoView({ behavior: 'smooth' });
+                }, 500); // Adjust the timeout if necessary
+            });
+        });
+    </script>
+}
