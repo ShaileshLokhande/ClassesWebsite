@@ -4,6 +4,7 @@ using ClassesWebsite.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClassesWebsite.Migrations
 {
     [DbContext(typeof(ClassesDbContext))]
-    partial class ClassesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241230162724_AddCountryStateCityToStudent")]
+    partial class AddCountryStateCityToStudent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,8 +41,6 @@ namespace ClassesWebsite.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("StateId");
 
                     b.ToTable("Cities");
                 });
@@ -77,8 +78,6 @@ namespace ClassesWebsite.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CountryId");
 
                     b.ToTable("States");
                 });
@@ -130,28 +129,6 @@ namespace ClassesWebsite.Migrations
                     b.ToTable("Students");
                 });
 
-            modelBuilder.Entity("ClassesWebsite.Models.City", b =>
-                {
-                    b.HasOne("ClassesWebsite.Models.State", "State")
-                        .WithMany("Cities")
-                        .HasForeignKey("StateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("State");
-                });
-
-            modelBuilder.Entity("ClassesWebsite.Models.State", b =>
-                {
-                    b.HasOne("ClassesWebsite.Models.Country", "Country")
-                        .WithMany("States")
-                        .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Country");
-                });
-
             modelBuilder.Entity("ClassesWebsite.Models.Student", b =>
                 {
                     b.HasOne("ClassesWebsite.Models.City", "City")
@@ -177,16 +154,6 @@ namespace ClassesWebsite.Migrations
                     b.Navigation("Country");
 
                     b.Navigation("State");
-                });
-
-            modelBuilder.Entity("ClassesWebsite.Models.Country", b =>
-                {
-                    b.Navigation("States");
-                });
-
-            modelBuilder.Entity("ClassesWebsite.Models.State", b =>
-                {
-                    b.Navigation("Cities");
                 });
 #pragma warning restore 612, 618
         }

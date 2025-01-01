@@ -37,6 +37,32 @@
             <textarea id="Description" name="Description" class="form-control" required></textarea>
         </div>
     </div>
+    <div class="form-row">
+        <!-- Country Dropdown -->
+        <div class="form-group col-md-4">
+            <label for="Country">Country</label>
+            <select id="Country" name="CountryId" class="form-control" asp-for="CountryId" asp-items="Model.Countries" required>
+                <option value="">Select Country</option>
+            </select>
+        </div>
+
+        <!-- State Dropdown -->
+        <div class="form-group col-md-4">
+            <label for="State">State</label>
+            <select id="State" name="StateId" class="form-control" asp-for="StateId" asp-items="Model.States" required>
+                <option value="">Select State</option>
+            </select>
+        </div>
+
+        <!-- City Dropdown -->
+        <div class="form-group col-md-4">
+            <label for="City">City</label>
+            <select id="City" name="CityId" class="form-control" asp-for="CityId" asp-items="Model.Cities" required>
+                <option value="">Select City</option>
+            </select>
+        </div>
+    </div>
+
 
     <button type="submit" class="btn btn-primary">Save</button>
     <button type="reset" class="btn btn-secondary">Reset</button>
@@ -126,6 +152,64 @@
                     // Scroll to the table/grid after clicking pagination
                     document.getElementById('studentGrid').scrollIntoView({ behavior: 'smooth' });
                 }, 500); // Adjust the timeout if necessary
+            });
+        });
+        // Cascading dropdown functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            const countryDropdown = document.getElementById('Country');
+            const stateDropdown = document.getElementById('State');
+            const cityDropdown = document.getElementById('City');
+
+            // Event listener for Country dropdown
+            countryDropdown.addEventListener('change', function () {
+                const countryId = countryDropdown.value;
+                console.log("countryId:"+countryId);
+                if (countryId) {
+                    fetch(`/GetStates/${countryId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Populate State dropdown
+                            stateDropdown.innerHTML = '<option value="">Loading...</option>';
+                            data.forEach(state => {
+                                const option = document.createElement('option');
+                                option.value = state.value;
+                                option.textContent = state.text;
+                                stateDropdown.appendChild(option);
+                            });
+
+                            // Reset City dropdown
+                            cityDropdown.innerHTML = '<option value="">Select City</option>';
+                        })
+                        .catch(error => console.error('Error fetching states:', error));
+                } else {
+                    // Reset State and City dropdowns if no Country is selected
+                    stateDropdown.innerHTML = '<option value="">Select State</option>';
+                    cityDropdown.innerHTML = '<option value="">Select City</option>';
+                }
+            });
+
+            // Event listener for State dropdown
+            stateDropdown.addEventListener('change', function () {
+                const stateId = stateDropdown.value;
+
+                if (stateId) {
+                    fetch(`/GetCities/${stateId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Populate City dropdown
+                            cityDropdown.innerHTML = '<option value="">Loading...</option>';
+                            data.forEach(city => {
+                                const option = document.createElement('option');
+                                option.value = city.value;
+                                option.textContent = city.text;
+                                cityDropdown.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error('Error fetching cities:', error));
+                } else {
+                    // Reset City dropdown if no State is selected
+                    cityDropdown.innerHTML = '<option value="">Select City</option>';
+                }
             });
         });
     </script>

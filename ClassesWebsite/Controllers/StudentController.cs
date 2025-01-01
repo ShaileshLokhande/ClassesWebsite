@@ -1,16 +1,19 @@
 ﻿using ClassesWebsite.Models;
 using ClassesWebsite.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ClassesWebsite.Controllers
 {
     public class StudentController : Controller
     {
         private readonly StudentService _studentService;
+        private readonly LocationService _locationService;
 
-        public StudentController(StudentService studentService)
+        public StudentController(StudentService studentService, LocationService locationService)
         {
             _studentService = studentService;
+            _locationService = locationService;
         }
 
         public async Task<IActionResult> Index(string searchString, string sortOrder, int page = 1)
@@ -41,14 +44,21 @@ namespace ClassesWebsite.Controllers
             var pagedStudents = students.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
             // Passing data to the view
-            var totalStudents = students.Count();
+            var totalStudents = students.Count();          
+            var countries = _locationService.GetGetAllCountries();
+
             var model = new StudentIndexViewModel
             {
                 Students = pagedStudents,
                 CurrentPage = page,
                 TotalPages = (int)Math.Ceiling((double)totalStudents / pageSize),
                 SearchString = searchString,
-                SortOrder = sortOrder
+                SortOrder = sortOrder,
+                Countries = countries.Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.Name
+                }).ToList()
             };
 
             return View(model);
@@ -59,12 +69,9 @@ namespace ClassesWebsite.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Student student)
         {
-            if (ModelState.IsValid)
-            {
-                await _studentService.AddAsync(student);
-                return RedirectToAction(nameof(Index));
-            }
-            return View(student);
+            await _studentService.AddAsync(student);
+            return RedirectToAction(nameof(Index));
+            //return View(student);
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -96,5 +103,36 @@ namespace ClassesWebsite.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // Get States by CountryId
+        [HttpGet("GetStates/{countryId}")]
+        public JsonResult GetStates(int countryId)
+        {
+            var states = _locationService.GetStatesByCountryId(countryId)
+                .Select(state => new { value = state.Id, text = state.Name });
+            return Json(states);
+        }
+
+        // Get Cities by StateId
+        [HttpGet("GetCities/{stateId}")]
+        public JsonResult GetCities(int stateId)
+        {
+            var cities = _locationService.GetCitiesByStateId(stateId)
+                .Select(city => new { value = city.Id, text = city.Name });
+            return Json(cities);
+        }
+
+
+        /*[HttpPost]
+        public IActionResult Create(StudentIndexViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Save the student details
+                _studentService.AddAsync(model);
+                return RedirectToAction("Index");
+            }
+            return View(model);
+        }
+*/
     }
 }
