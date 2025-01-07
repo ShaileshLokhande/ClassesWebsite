@@ -32,7 +32,10 @@
         <textarea asp-for="Description" class="form-control"></textarea>
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
-
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="CityId" />
+    <input type="hidden" asp-for="StateId" />
+    <input type="hidden" asp-for="CountryId" />
     <button type="submit" class="btn btn-primary">Save</button>
     <a href="@Url.Action("Index")" class="btn btn-secondary">Cancel</a>
 </form>

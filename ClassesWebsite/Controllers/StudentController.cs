@@ -86,12 +86,9 @@ namespace ClassesWebsite.Controllers
         {
             if (id != student.Id) return NotFound();
 
-            if (ModelState.IsValid)
-            {
-                await _studentService.UpdateAsync(student);
-                return RedirectToAction(nameof(Index));
-            }
-            return View(student);
+            await _studentService.UpdateAsync(student);
+            return RedirectToAction(nameof(Index));
+            //return View(student);
         }
 
         public async Task<IActionResult> Delete(int id)
